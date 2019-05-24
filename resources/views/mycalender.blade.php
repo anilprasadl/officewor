@@ -2,16 +2,21 @@
 
 @section('content')
 
-<div class="container">
 
-    <div class="row">
 
-        <div class="col-sm-12 p-3">
-            <button ng-click="addNewSlot()" title="Add" alt="Add" class=" btn btn-circle btn-mn btn-primary pull-right">
-                <span class="fa fa-plus"></span>
-            </button>
-        </div>
-    </div>
+
+
+
+<div class="container-fluid" >
+
+<div class="row">
+
+<div class="col-sm-12 p-3">
+    <button ng-click="addNewSlot()" title="Add" alt="Add" class=" btn btn-circle btn-mn btn-primary pull-right" data-target="#addSlot" data-toggle="modal">
+        <span class="fa fa-plus"></span>
+    </button>
+</div>
+</div>
 
     <div class="alert alert-success" ng-if="successMessage">
         <a href="#" class="close" data-dismiss="alert">&#10799;</a>
@@ -25,25 +30,26 @@
         <div class="modal-dialog">
         <!-- Modal content-->
 
-            <!-- <div class="modal-content">
+            <div class="modal-content">
                 <div class="modal-header">
+                    
+                    <h4 class="modal-title">Schedule your Event</h4>
                     <button type="button" class="close" data-dismiss="modal">&#10799;</button>
-                    <h4 class="modal-title">Event Type</h4>
                 </div>
                 <form class="cmxform"  ng-submit="saveSlot()" ng-model="eventtypes">
                 <div class="modal-body">
-                    <br> -->
+                    <br>
                 <!-- Error begins -->
-                    <!-- <div ng-if="errors" class="alert alert-danger">
+                    <div ng-if="error_msg" class="alert alert-danger">
                     <a href="#" class="close" data-dismiss="alert">&#10799;</a>
 
-                    @{{ errors }} 
+                    @{{ error_msg }} 
 
                     </div>
-                    <br> -->
+                    <br>
                 <!-- Error ends  -->
 
-                    <!-- <div class="container-fluid">
+                    <div class="container-fluid">
                         <div class="row">
                             <div class="col-md-9     col-md-offset-1">
                                 <div class="form-group">
@@ -71,14 +77,14 @@
                                 </div>
                             </div>
                         </div>
-                    </div> -->
-                <!-- </div>
+                    </div>
+                </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </div>
                 </form>
-            </div> -->
+            </div>
         </div>
     </div>
 <!-- Add /edit eventtype modal ends  -->
@@ -138,12 +144,12 @@
                 if (response.status == 200) {
                     $scope.addevent=$scope.momentDate;
                 } else {
-                    $scope.error = response.data.error.message;
+                    $scope.error_msg = response.data.error.message;
                 }
             });
         };
         $scope.addNewSlot= function() {
-            $scope.errors = $scope.successMessage = null;
+            $scope.error_msg = $scope.successMessage = null;
             $scope.eventtypes = {};
             $("#addSlot").modal("show");
         };
@@ -158,7 +164,7 @@
                     $("#addSlot").modal('hide');
                     $scope.successMessage = response.data.message;
                 } else {
-                    $scope.errors= response.data.error.message;
+                    $scope.error_msg= response.data.error.message;
                 }
             });
         }
