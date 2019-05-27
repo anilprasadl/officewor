@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- CSRF Token -->
@@ -9,120 +10,280 @@
 
     <title>{{ config('app.name', 'DevOps Tool') }}</title>
     <link rel="icon" href="{{asset('/img/devops.png')}}" style=""type="image/x-icon">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.2.7/fullcalendar.min.css"/>
-
-
-    <!-- <script src="{{ asset('js/app.js') }}" defer></script> -->
-    <!-- angularjs -->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.6/angular.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.6/angular-animate.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.6/angular-aria.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.6/angular-messages.min.js"></script>
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-  <!-- Angular Material Library -->
-
-    
-    <!-- Fonts -->
-    <!-- <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet"> -->
-    <!-- <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.9/angular-material.min.css"> -->
-    <!-- <script type="text/javascript" src="http://code.jquery.com/jquery-1.10.0.min.js"></script> -->
-    <!-- <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet" type="text/css"> -->
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script> -->
-
-
-
-
-
-
     <!-- Styles -->
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
+    <!-- <link href="{{ asset('css/app.css') }}" rel="stylesheet"> -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular.min.js"></script>   
+    <!-- Scripts -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.6.1/angular-sanitize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+ 
+    <!-- Full calendar -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.2.7/fullcalendar.min.js"></script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.2.7/fullcalendar.min.css"/>
+   <!-- angular -->
     
+    
+    
+    
+    <!-- Date Time Picker -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment-with-locales.js"></script>
+    <script src="https://cdn.rawgit.com/indrimuska/angular-moment-picker/master/dist/angular-moment-picker.min.js"></script>
+    <link href="https://cdn.rawgit.com/indrimuska/angular-moment-picker/master/dist/angular-moment-picker.min.css" rel="stylesheet">
+    
+
+    <style type="text/css">
+        .dropdown-menu>.active>a,
+        .dropdown-menu>.active>a:focus,
+        .dropdown-menu>.active>a:hover {
+            background: white !important;
+            color: #333 !important;
+        }
+        [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+                display: none !important;
+            }
+            img {
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .bg_load {
+                position: fixed;
+                left: 0px;
+                top: 0px;
+                width: 100%;
+                height: 100%;
+                background: #000;
+                opacity:0.6;
+                z-index:9999;
+            }
+            .close {
+                color: #fff !important; 
+                opacity: 1 !important;                
+            }
+            .dataTables_wrapper .dataTables_processing {
+                    position: absolute;
+                    top: 30%;
+                    left: 50%;
+                    width: 30%;
+                    height: 40px;
+                    margin-left: -20%;
+                    margin-top: -25px;
+                    padding-top: 20px;
+                    text-align: center;
+                    font-size: 1.2em;
+                    background:none;
+              }
+              .modal-header {
+                    padding:9px 15px;
+                    border-bottom:1px solid #eee;
+                    background-color: #084e63;
+                    color:#ecf0f1;
+                    -webkit-border-top-left-radius: 5px;
+                    -webkit-border-top-right-radius: 5px;
+                    -moz-border-radius-topleft: 5px;
+                    -moz-border-radius-topright: 5px;
+                    border-top-left-radius: 5px;
+                    border-top-right-radius: 5px;
+                    font-family:raleway;
+                    font-weight: bold;
+                    font-size:15px;
+
+            }
+            body {
+                font:15px raleway;
+                font-weight: 10px;
+            }
+            
+            .navbar-nav>li>a:hover{
+                color:#ecf0f1;
+                background-color:#3498db;
+                font-family:raleway;
+                font-weight: bold;
+                transition: .5s;
+
+
+                /* opacity:0.5 !important; */
+            }
+            .navbar-brand {
+            ￼    float: left;
+            ￼    height: 50px !important;
+            ￼    padding: 15px 15px !important;
+            ￼    font-size: 18px !important;
+            ￼    line-height: 52px !important;
+            }
+            .navbar-nav>li>a{
+                color:#ecf0f1;
+                font-weight: bold; 
+                transition: .5s;                
+            }
+            .dropdown-menu{
+                font-family:raleway;
+                font-weight: bold;
+                background-color: #084e63 !important;
+                color:#ecf0f1 !important;
+                transition: .5s;                
+            }
+            .dropdown-toggle:hover{
+                background-color: #3498db !important;
+                color:#ecf0f1 !important;
+            }
+            .dropdown-menu>li>a{
+                background-color: #084e63 !important;
+                color:#ecf0f1 !important;
+                transition: .5s;
+            }
+            .dropdown-menu>li>a:hover{
+                background-color: #3498db !important;
+                color:#ecf0f1 !important;
+            }
+            .btn-primary:hover{
+                background-color:#3498db;
+                border:1px solid #3498db;
+                transition: .5s;
+
+            }
+            .panel-heading{
+                background-color: #084e63 !important;
+                color:#ecf0f1 !important;
+                font-family:raleway;
+                font-weight: bold;
+                font-size:19px;
+
+
+            }
+            .nav .open>a, .nav .open>a:focus, .nav .open>a:hover{
+                background-color: #337ab7 !important;
+                font-family:15 px raleway;
+                font-weight: bold;
+                transition: .5s;
+
+
+            }
+            .navbar-toggle {
+                background-color: #337ab7 !important;
+                color:#ecf0f1 !important;
+                font-family:raleway;
+                font-weight: bold;
+
+            }
+            .dropdown-toggle{
+                background-color:  #084e63 !important;
+                color:#ecf0f1 !important;
+                font-family:raleway;
+                font-weight: bold;
+
+            }
+            .navbar-brand{
+                background-color: #084e63 !important;
+                color:#ecf0f1 !important;
+                font-family:raleway !important;
+                font-weight: bold;
+                transition: .5s;
+
+
+            }
+            
+            .navbar-brand:hover{
+                background-color: #3498db !important;
+
+
+            }
+            .bg-primary {
+                color: #fff;
+                background-color: #084e63 !important;
+            }
+    </style>
+    @yield('pageStyle')
+
 </head>
 <body>
-    <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light navbar-laravel">
-            <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
-                    {{ config('app.name', 'Laravel') }}
-                </a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+<div id="app">
+        <nav class="navbar navbar-expand-sm bg-primary ">
+            <div class="container-fluid">
+                <div class="navbar-header">
 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <!-- Collapsed Hamburger -->
+                    <button type="button" class="navbar-toggle collapsed"
+                    data-toggle="collapse" data-target="#app-navbar-collapse"
+                     aria-expanded="false">
+                        <span class="sr-only">Toggle Navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+
+                    <!-- Branding Image -->
+                    <a class="navbar-brand" href="{{ route('login') }}" style="padding:0px;" >
+                       <span >{{ config('app.name', 'DevOps Tool') }}</span>
+                    </a>
+                </div>
+
+                <div class="collapse navbar-collapse" id="app-navbar-collapse">
                     <!-- Left Side Of Navbar -->
-                    <ul class="navbar-nav mr-auto">
-
-                    </ul>
+                   
 
                     <!-- Right Side Of Navbar -->
-                    <ul class="navbar-nav ml-auto">
+                    <ul class="nav navbar-nav navbar-right">
                         <!-- Authentication Links -->
                         @guest
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
-                            </li>
+                            <li><a href="{{ route('login') }}">Login</a></li>
+                            <li><a href="{{ route('register') }}">Register</a></li>
                             @if (Route::has('register'))
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
                                 </li>
                             @endif
                         @else
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }} <span class="caret"></span>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle"
+                                data-toggle="dropdown" role="button"
+                                aria-expanded="false" aria-haspopup="true" v-pre>
+                                  <i class="fa fa-user"></i>  {{ Auth::user()->name }} <span class="caret"></span>
                                 </a>
 
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault();
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a href="{{ route('logout') }}"
+                                            onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
-                                        {{ __('Logout') }}
-                                    </a>
+                                            Logout
+                                        </a>
 
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                                        @csrf
-                                    </form>
-                                </div>
+                                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                            {{ csrf_field() }}
+                                        </form>
+                                    </li>
+                                </ul>
                             </li>
+                           
                         @endguest
                     </ul>
                 </div>
             </div>
         </nav>
 
-        <main class="py-4">
-            @yield('content')
-        </main>
-    </div>
-   
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script> -->
-    <!-- Date time picker starts-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment-with-locales.js"></script>
-    <script src="https://cdn.rawgit.com/indrimuska/angular-moment-picker/master/dist/angular-moment-picker.min.js"></script>
-    <link href="https://cdn.rawgit.com/indrimuska/angular-moment-picker/master/dist/angular-moment-picker.min.css" rel="stylesheet">
-    <!-- Date time picker ends -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-sanitize/1.6.1/angular-sanitize.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/2.5.0/ui-bootstrap-tpls.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        @yield('content')
+       
+</div>
+
+    
    <!-- Full calendar Script -->
     <script src="{{asset('js/fullcalendar/moment.js')}}"></script>
     <script src="{{asset('js/fullcalendar/jquery.js')}}"></script>
     <script src="{{asset('js/fullcalendar/jquery-ui.custom.js')}}"></script>
     <script src="{{asset('js/fullcalendar/fullcalendar.js')}}"></script>
 
-    <!-- <script src="{{asset('js/date.js')}}"> -->
-    <!-- AngularJS Material Javascript now available via Google CDN; version 1.1.10 used here -->
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.10/angular-material.min.js"></script> -->
-
     @yield('pageScript')
 
     @stack('scripts')
+
 
 </body>
 </html>

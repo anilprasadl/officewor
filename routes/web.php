@@ -17,10 +17,11 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+// Route::get('/home', 'HomeController@index')->name('home')->middleware('auth');
 
-Route::resource('events', 'EventController');
 
-Route::get('addEvent', 'EventController@display');
+Route::resource('events', 'EventController')->middleware('auth');
+
+Route::get('addEvent', 'EventController@display')->middleware('auth');
 
 

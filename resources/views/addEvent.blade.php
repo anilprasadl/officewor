@@ -43,14 +43,6 @@
                                             <i class="fa fa-calendar"></i>
                                         </span>
                                     </div>
-
-
-
-
-                                    <mat-form-field>
-                                    <input matInput type="datetime-local" placeholder="start date">
-                                    </mat-form-field>
-
 </div>
         <button type="submit" class="btn btn-primary">Submit</button>
         
@@ -85,6 +77,7 @@ app.controller('addEventController', function ($scope, $http, $compile) {
             // console.log(response);
             if (response.status == 200) {
                 $scope.successMessage = response.data.message;
+                $scope.addevent={};
             } else {
                 $scope.errors= response.data.error.message;
             }

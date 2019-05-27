@@ -37,7 +37,7 @@ class EventController extends Controller
  
                  new \DateTime($value->start_date),
  
-                 new \DateTime($value->end_date.' +1 day'),
+                 new \DateTime($value->end_date),
 
                  null
  
@@ -45,7 +45,7 @@ class EventController extends Controller
            }
  
         }
-
+        
 
  
        $calendar = Calendar::addEvents($events); 
@@ -73,7 +73,7 @@ class EventController extends Controller
     {
        
         try{ 
-            // print_r($request);exit;
+            // print_r($request->id);exit;
             $user = Auth::user();
             if($request->id){
             $event = Event::find($request->id);
@@ -86,7 +86,7 @@ class EventController extends Controller
             $event->title = $request->title;
             $event->start_date = $request->start_date;
             $event->end_date = $request->end_date;
-            // print_r($event->end_date);exit;
+            // print_r($event->all());exit;
             $event->save();
 
             return response([
