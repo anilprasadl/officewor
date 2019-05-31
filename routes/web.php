@@ -20,8 +20,13 @@ Auth::routes();
 // Route::get('/home', 'HomeController@index')->name('home')->middleware('auth');
 
 
-Route::resource('events', 'EventController')->middleware('auth');
+Route::resource('events', 'EventController');
 
-Route::get('addEvent', 'EventController@display')->middleware('auth');
+Route::get('myevents/list', 'myEventController@listEventType');
+
+Route::get('myevents/deleted-list', 'myEventController@listDeletedEvents');
+
+Route::resource('myevents', 'myEventController')->middleware('auth');
+
 
 

@@ -7,6 +7,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+// use App\Http\Controllers\myEventController;
+use Mail;
+use App\Mail\sendRegisterMail;
 
 class RegisterController extends Controller
 {
@@ -28,7 +31,7 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/';
 
     /**
      * Create a new controller instance.
@@ -62,11 +65,20 @@ class RegisterController extends Controller
      * @return \App\User
      */
     protected function create(array $data)
-    {
+    {   
+        $this->sendRegisterNotication($data['name'],$data['email']);
         return User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+    }
+    public function sendRegisterNotication($user_name, $user_email){
+        
+        $records = array();
+        $records['name'] = $user_name;
+        $records['email'] = $user_email;
+       
+        Mail::send(new sendRegisterMail($records));
     }
 }

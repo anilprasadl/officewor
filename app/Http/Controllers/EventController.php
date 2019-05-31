@@ -7,6 +7,10 @@ use Illuminate\Http\Response;
 
 use App\Event;
 
+use App\Mail\SendBookingMail;
+use App\Mail\SendCancelMail;
+use Mail;
+
 use Auth;
 
 use MaddHatter\LaravelFullcalendar\Facades\Calendar;
@@ -40,16 +44,24 @@ class EventController extends Controller
                  new \DateTime($value->end_date),
 
                  null
+                 
  
              );
+             
            }
  
         }
-        
+    //     $calendar = \Calendar::addEvents($events) //add an array with addEvents
+    // ->setOptions([ //set fullcalendar options
+	// 	'firstDay' => 1
+	// ])->setCallbacks([ //set fullcalendar callback options (will not be JSON encoded)
+    //     'eventClick' => 'function(events) {
+    //         $("#addSlot").modal(events.title);
+    //      }'
+    // ]);
 
  
        $calendar = Calendar::addEvents($events); 
- 
        return view('mycalender', compact('calendar')); 
     }
 
@@ -71,34 +83,7 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-       
-        try{ 
-            // print_r($request->id);exit;
-            $user = Auth::user();
-            if($request->id){
-            $event = Event::find($request->id);
-            $event->updated_by = $user->id;
-            }else {
-            $event = new Event;
-            $event->created_by = $user->id;
-            }
 
-            $event->title = $request->title;
-            $event->start_date = $request->start_date;
-            $event->end_date = $request->end_date;
-            // print_r($event->all());exit;
-            $event->save();
-
-            return response([
-            'data' => [
-                "event_id" => $event->id,
-                "message" => "Event update success.",
-                ],
-            ]);
-    
-        }catch(\Exception $e){
-            return response($e->getMessage());
-        }
     }
 
     /**
@@ -148,7 +133,7 @@ class EventController extends Controller
     public function display()
     {
         
-        return view("addEvent");
 
     }
+
 }
