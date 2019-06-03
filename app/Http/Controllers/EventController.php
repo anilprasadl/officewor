@@ -7,10 +7,6 @@ use Illuminate\Http\Response;
 
 use App\Event;
 
-use App\Mail\SendBookingMail;
-use App\Mail\SendCancelMail;
-use Mail;
-
 use Auth;
 
 use MaddHatter\LaravelFullcalendar\Facades\Calendar;
@@ -51,17 +47,30 @@ class EventController extends Controller
            }
  
         }
-    //     $calendar = \Calendar::addEvents($events) //add an array with addEvents
+        $calendar = \Calendar::addEvents($events) //add an array with addEvents
+    ->setOptions([ //set fullcalendar options
+		'firstDay' => 1
+	])->setCallbacks([ //set fullcalendar callback options (will not be JSON encoded)
+        'eventClick' => 'function(events) {
+            $("#addSlot").val(moment(events.start));
+         }'
+    ]);
+    // $calendar = \Calendar::addEvents($events) //add an array with addEvents
     // ->setOptions([ //set fullcalendar options
 	// 	'firstDay' => 1
 	// ])->setCallbacks([ //set fullcalendar callback options (will not be JSON encoded)
-    //     'eventClick' => 'function(events) {
-    //         $("#addSlot").modal(events.title);
-    //      }'
+    //     'eventClick' => 'function(calEvent, jsEvent, view) {
+    //         $("#start_time").val(moment(calEvent.start).format("YYYY-MM-DD HH:mm:ss"));
+    //         $("#finish_time").val(moment(calEvent.end).format("YYYY-MM-DD HH:mm:ss"));
+    //         $("#editModal").modal();
+    //     }'
     // ]);
 
  
-       $calendar = Calendar::addEvents($events); 
+    //    $calendar = Calendar::addEvents($events,
+    //    [
+    //     'color' => '#A20055'
+    //     ]); 
        return view('mycalender', compact('calendar')); 
     }
 

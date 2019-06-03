@@ -117,8 +117,8 @@
 
                                     <div class="form-group">
                                         <label for="start_date">Start Date</label>
-                                        <div class="input-group" moment-picker="form.event.start_date" format="YYYY-MM-DD HH:mm"  min-date="ctrl.minDateMoment" >
-                                        <input class="form-control" placeholder="Select a date" ng-model="form.event.start_date"
+                                        <div class="input-group" moment-picker="addevent.start_date" format="YYYY-MM-DD HH:mm"  min-date="ctrl.minDateMoment" >
+                                        <input class="form-control" placeholder="Select a date" ng-model="addevent.start_date"
                                             ng-model-options="{ updateOn: 'blur' }"  required>
                                             <span class="input-group-addon">
                                                 <i class="fa fa-calendar"></i>

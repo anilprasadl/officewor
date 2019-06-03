@@ -98,6 +98,7 @@ class myEventController extends Controller
        
         try{ 
             $rv = DB::transaction(function()use($request) {
+                
             // print_r($request->id);exit;
             $user = Auth::user();
             if($request->id){
