@@ -234,6 +234,15 @@
                                 
                             @endif
                         @else
+                        @if(Auth::user()->is_admin)
+                        <li class="nav-item">
+                            <a class="nav-link" href="users"> Users </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="slots"> Booked Slots </a>
+                        </li>
+                                
+                        @endif
                         <li class="nav-item">
                                     <a class="nav-link" href="events"> Calendar </a>
                                 </li>

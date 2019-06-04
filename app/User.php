@@ -5,11 +5,15 @@ namespace App;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class User extends Authenticatable
 {
+    use SoftDeletes;
     use Notifiable;
 
+    const STATUS_IS_ADMIN = "YES";
+    const STATUS_IS_NOT_ADMIN = "NO";
     /**
      * The attributes that are mass assignable.
      *

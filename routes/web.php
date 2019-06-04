@@ -13,11 +13,11 @@
 
 Route::get('/', function () {
     return view('welcome');
+
 });
-
 Auth::routes();
-
-// Route::get('/home', 'HomeController@index')->name('home')->middleware('auth');
+Route::group(['middleware' => 'auth'], function() {
+// Route::get('/home', 'HomeController@index')->name('home');
 
 
 Route::resource('events', 'EventController');
@@ -26,7 +26,23 @@ Route::get('myevents/list', 'myEventController@listEventType');
 
 Route::get('myevents/deleted-list', 'myEventController@listDeletedEvents');
 
-Route::resource('myevents', 'myEventController')->middleware('auth');
+Route::resource('myevents', 'myEventController');
 
+Route::group(['middleware' => 'IsAdmin'], function() {
+
+Route::get('users/list','AdminController@listUsers');
+
+Route::resource('users','AdminController');
+
+Route::post('/slots/{id}/{status}','SlotController@store');
+
+Route::get('slots/booked','SlotController@listBookedSlots');
+
+Route::resource('slots','SlotController');
+
+
+});
+
+});
 
 

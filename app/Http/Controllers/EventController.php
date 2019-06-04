@@ -37,22 +37,32 @@ class EventController extends Controller
  
                  new \DateTime($value->start_date),
  
-                 new \DateTime($value->end_date),
+                 new \DateTime($value->end_date)
 
-                 null
                  
- 
+                //  [
+                //     'color' => '#444444',
+                //     'url' => '#',
+                //     'description' => "Event Description",
+                //     'textColor' => '#0A0A0A'
+                // ]
              );
              
            }
  
         }
-        $calendar = \Calendar::addEvents($events) //add an array with addEvents
+        $calendar = \Calendar::addEvents($events,
+        [
+            'color' => '#444444',
+            'url' => '#',
+            'description' => "Event Description",
+            'textColor' => '#0A0A0A'
+        ]) //add an array with addEvents
     ->setOptions([ //set fullcalendar options
 		'firstDay' => 1
 	])->setCallbacks([ //set fullcalendar callback options (will not be JSON encoded)
-        'eventClick' => 'function(events) {
-            $("#addSlot").val(moment(events.start));
+        'eventClick' => 'function(calEvent, jsEvent, view) {
+            $("#addSlot").modal();
          }'
     ]);
     // $calendar = \Calendar::addEvents($events) //add an array with addEvents
@@ -69,8 +79,12 @@ class EventController extends Controller
  
     //    $calendar = Calendar::addEvents($events,
     //    [
-    //     'color' => '#A20055'
-    //     ]); 
+    //         'color' => '#444444',
+    //         'url' => '#',
+    //         'description' => "Event Description",
+    //         'textColor' => '#0A0A0A'
+    //     ]
+    // ); 
        return view('mycalender', compact('calendar')); 
     }
 

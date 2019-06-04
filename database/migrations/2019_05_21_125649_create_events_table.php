@@ -30,6 +30,7 @@ class CreateEventsTable extends Migration
             $table->string('title');
             $table->datetime('start_date');
             $table->datetime('end_date');
+            $table->string('status', 25)->nullable()->default('ACTIVE');
             $table->integer('created_by')->unsigned();
             $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
             $table->integer('updated_by')->unsigned()->nullable();
