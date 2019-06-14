@@ -5,6 +5,15 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\VerifiesEmails;
 
+use App\User;
+
+use Illuminate\Http\Request;
+
+use Illuminate\Auth\Events\Verified;
+
+use Illuminate\Auth\Access\AuthorizationException;
+
+
 class VerificationController extends Controller
 {
     /*
@@ -38,4 +47,40 @@ class VerificationController extends Controller
         $this->middleware('signed')->only('verify');
         $this->middleware('throttle:6,1')->only('verify', 'resend');
     }
+
+    /**
+     * Where to redirect users after verification.
+     *
+     */
+
+//     public function verify(Request $request)
+// {
+
+//     $userId = $request->route('id');
+//     $user = User::findOrFail($userId);
+
+//     if ($user->markEmailAsVerified()) {
+//         event(new Verified($user));
+//     }
+
+//     return redirect($this->redirectPath())->with('verified', true);
+// }
+
+// public function verify(Request $request)
+// {
+//     print_r($request);exit;
+//     if ($request->route('id') != $request->user()->getKey()) {
+//         throw new AuthorizationException;
+//     }
+
+//     if ($request->user()->hasVerifiedEmail()) {
+//         return $redirectTo = '/';
+//     }
+
+//     if ($request->user()->markEmailAsVerified()) {
+//         event(new Verified($request->user()));
+//     }
+
+//     return redirect($this->redirectPath())->with('verified', true);
+// }
 }

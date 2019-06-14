@@ -20,11 +20,6 @@
                         <a href="#" class="close" data-dismiss="alert">&#10799;</a>
                       <span ng-model="successMessage">@{{successMessage}}</span>
                     </div>
-                    <br>
-                    <div class="alert alert-danger" ng-if="error_msg">
-                        <a href="#" class="close" data-dismiss="alert">&#10799;</a>
-                      <span ng-model="error_msg">@{{error_msg}}</span>
-                    </div>
                     <br/>
                     <div raw-ajax-busy-indicator class="bg_load text-center" ng-show="loading"  id="loading-block">
                         <img src="{{asset('img/Infinity-1s-200px.svg')}}"style="margin-left: 0px;margin-top: 300px;">
@@ -112,7 +107,7 @@
                                 <div class="col-md-9     col-md-offset-1">
                                     <div class="form-group">
                                         <label for="Name">Project Name:</label>
-                                        <input type="text" class="form-control" ng-model="addevent.title" required>
+                                        <input id="title" type="text" class="form-control" ng-model="addevent.title" required>
                                     </div>
 
                                     <div class="form-group">
@@ -124,6 +119,7 @@
                                                 <i class="fa fa-calendar"></i>
                                             </span>
                                         </div>
+                                        <br>
                                         <label for="end_date">End Date</label>
                                         <div class="input-group" moment-picker="addevent.end_date" format="YYYY-MM-DD HH:mm" min-date="ctrl.minDateMoment">
                                             <input class="form-control" placeholder="Select a date" ng-model="addevent.end_date"
@@ -147,8 +143,6 @@
         </div>
     <!-- Add /edit eventtype modal ends  -->
 
-<!-- Add /edit eventtype modal ends  -->
-
 <!-- delete modal begins -->
     <div id="deleteEventType" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -158,12 +152,37 @@
                     <h4 class="modal-title">Alert</h4>
                 </div>
                 <div class="modal-body">
-                    <p>@{{ delete_msg }}</p>
+                <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-md-9     col-md-offset-1">
+                <!-- <div class="input-group" >
+                    <input class="form-control" ng-model="cancelEvent.description"
+                        ng-model-options="{ updateOn: 'blur' }" required >
+                </div> -->
+
+
+                <form>
+                    <div class="form-group">
+                        <p>@{{ delete_msg }}</p>
+                        <br>
+                        <br>
+                        <br>
+                            
+                        <label>Comments</label>
+                        <div class="form-group">
+                            <textarea class="input-group"  rows="3" cols="50" placeholder="Give Reason For Cancellation"></textarea>
+                        </div>
+                        
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">
+                            @{{show_delete ? 'No' : 'OK'}}</button>
+                            <button type="button" ng-if="show_delete" ng-click="deleteConfirmed()" data-dismiss="modal" class="btn btn-danger">Yes</button>
+                        </div>
+                    </div>
+                </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">
-                    @{{show_delete ? 'No' : 'OK'}}</button>
-                    <button type="button" ng-if="show_delete" ng-click="deleteConfirmed()" data-dismiss="modal" class="btn btn-danger">Yes</button>
+                </div>
                 </div>
             </div>
         </div>
@@ -251,6 +270,8 @@ app.controller('eventtypeController', function ($scope, $http, $compile) {
     $scope.addNewSlot= function() {
             $scope.error_msg = $scope.successMessage = null;
             $scope.addevent = {};
+            $scope.addevent.status='{{App\Event::STATUS_CREATED}}'
+            console.log($scope.addevent);
             $("#addSlot").modal("show");
             };
 //Edit eventtype
@@ -277,7 +298,7 @@ app.controller('eventtypeController', function ($scope, $http, $compile) {
         $scope.errors = $scope.successMessage = null;
         $scope.selected_event_id = id;
         $scope.show_delete = true;
-        $scope.delete_msg = 'You are going to remove this record.  Are you Sure?';
+        $scope.delete_msg = 'You are going to Cancel this event. Are you Sure?';
         $("#deleteEventType").modal('show');
         // console.log("Test");return false;
     }
@@ -301,12 +322,12 @@ app.controller('eventtypeController', function ($scope, $http, $compile) {
 
     $scope.saveSlot = function(){
             $scope.loading = true;
+            // console.log($scope.addevent);
             // $scope.error_msg = $scope.successMessage = null;
             $http.post('myevents',$scope.addevent).then(function (response) {
-                // console.log(response);return false;
                 if (response.status == 200) {
                     $("#addSlot").modal('hide');
-                    console.log(response);
+                    // console.log(response.data.message);
                     $scope.successMessage = response.data.message;
                     $scope.listEventTypes();
                     $scope.listDeletedEvents();

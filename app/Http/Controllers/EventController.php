@@ -7,6 +7,8 @@ use Illuminate\Http\Response;
 
 use App\Event;
 
+use App\User;
+
 use Auth;
 
 use MaddHatter\LaravelFullcalendar\Facades\Calendar;
@@ -24,47 +26,199 @@ class EventController extends Controller
         $events = [];
 
         $request = Event::all();
+         
  
         if($request->count()){
  
-           foreach ($request as $key => $value) {
+        foreach ($request as $key => $value) {
+               
+                if($value->assigned_to)
+                    $user=User::select('name')->find($value->assigned_to);
+                else
+                    $user=  ['name'=>\App\Event::STATUS_UNASSIGNED ];
+             
+            $events[] = Calendar::event(
  
-             $events[] = Calendar::event(
+                 $value->title ,
  
-                 $value->title,
- 
-                 false,
+                 false  ,
  
                  new \DateTime($value->start_date),
  
-                 new \DateTime($value->end_date)
+                 new \DateTime($value->end_date),
 
-                 
-                //  [
-                //     'color' => '#444444',
-                //     'url' => '#',
-                //     'description' => "Event Description",
-                //     'textColor' => '#0A0A0A'
-                // ]
+                 $value->status,
+                 [
+
+                        // 'status'=> $value->status,
+                        'user_name' => $user,
+                 ]
+
              );
              
            }
  
         }
-        $calendar = \Calendar::addEvents($events,
-        [
-            'color' => '#444444',
-            'url' => '#',
-            'description' => "Event Description",
-            'textColor' => '#0A0A0A'
-        ]) //add an array with addEvents
-    ->setOptions([ //set fullcalendar options
-		'firstDay' => 1
-	])->setCallbacks([ //set fullcalendar callback options (will not be JSON encoded)
-        'eventClick' => 'function(calEvent, jsEvent, view) {
-            $("#addSlot").modal();
-         }'
-    ]);
+        if(!$events)
+        {
+                    $calendar = Calendar::addEvents($events);
+                    
+            } else{
+                    foreach($events as $event)
+                    {
+                        if ($event->id == Event::STATUS_COMPLETED )
+                            {
+                                            $calendar = \Calendar::addEvent($event,
+                                    [
+                                        'color' => '#2ecc71',
+                                    ])->setOptions([ //set fullcalendar options
+                                        'FirstDay' => 1,
+                                        // 'contentheight' => 650,
+                                        'editable' => false,
+                                        'allDay' => false,
+                                        'slotLabelFormat' => 'HH:mm:ss',
+                                        'timeFormat' => 'HH:mm',
+                                    ])->setCallbacks([ //set fullcalendar callback options (will not be JSON encoded)
+                                        
+                                        'eventClick' => 'function($events, jsEvent, view) {
+                                            $("#modalTitle").html($events.title);
+                                            $("#status").html($events.id);
+                                            {$("#assigned_user").html($events.user_name.name);}
+                                            var date = $events.start._i;
+                                            var time =date.substr(11,5);
+                                            $("#Start").html(time);
+                                            var edate = $events.end._i;
+                                            var etime = edate.substr(11,5);
+                                            $("#End").html(etime);
+                                            $("#calendarModal").modal();
+                                        }',
+                                        'eventRender' => 'function($events, element) {
+                                                    
+                                            $(element).tooltip({title: $events.title});             
+                                        }',
+                                        
+                                    ]);
+                                    // break;
+                                        }else if ($event->id == Event::STATUS_CREATED)
+                                        {
+                                            $calendar = \Calendar::addEvent($event,
+                                            [
+                                                'color' => '#3498db',
+                                            ])->setOptions([ //set fullcalendar options
+                                                'FirstDay' => 1,
+                                                // 'contentheight' => 650,
+                                                'editable' => false,
+                                                'allDay' => false,
+                                                'slotLabelFormat' => 'HH:mm:ss',
+                                                'timeFormat' => 'HH:mm',
+                                            ])->setCallbacks([ //set fullcalendar callback options (will not be JSON encoded)
+                                        
+                                                'eventClick' => 'function($events, jsEvent, view) {
+                                                    $("#modalTitle").html($events.title);
+                                                    $("#status").html($events.id);
+                                                    {$("#assigned_user").html($events.user_name.name);}
+                                                    var date = $events.start._i;
+                                                    var time =date.substr(11,5);
+                                                    $("#Start").html(time);
+                                                    var edate = $events.end._i;
+                                                    var etime = edate.substr(11,5);
+                                                    $("#End").html(etime);
+                                                    $("#calendarModal").modal();
+                                                }',
+                                                'eventRender' => 'function($events, element) {
+                                                            
+                                                    $(element).tooltip({title: $events.title});             
+                                                }',
+                                                
+                                            ]);
+                                        }else if ($event->id == Event::STATUS_ASSIGNED)
+                                        {
+                                            $calendar = \Calendar::addEvent($event,
+                                            [
+                                                'color' => '#8e44ad',
+                                            ])->setOptions([ //set fullcalendar options
+                                                'FirstDay' => 1,
+                                                // 'contentheight' => 650,
+                                                'editable' => false,
+                                                'allDay' => false,
+                                                'slotLabelFormat' => 'HH:mm:ss',
+                                                'timeFormat' => 'HH:mm',
+                                            ])->setCallbacks([ //set fullcalendar callback options (will not be JSON encoded)
+                                        
+                                                'eventClick' => 'function($events, jsEvent, view) {
+                                                    $("#modalTitle").html($events.title);
+                                                    $("#status").html($events.id);
+                                                    {$("#assigned_user").html($events.user_name.name);}
+                                                    var date = $events.start._i;
+                                                    var time =date.substr(11,5);
+                                                    $("#Start").html(time);
+                                                    var edate = $events.end._i;
+                                                    var etime = edate.substr(11,5);
+                                                    $("#End").html(etime);
+                                                    $("#calendarModal").modal();
+                                                }',
+                                                'eventRender' => 'function($events, element) {
+                                                            
+                                                    $(element).tooltip({title: $events.title});             
+                                                }',
+                                                
+                                            ]);
+                                        }else if ($event->id == Event::STATUS_CANCELLED)
+                                        {
+                                            $calendar = \Calendar::addEvent($event,
+                                            [
+                                                'color' => '#e74c3c',
+                                            ])->setOptions([ //set fullcalendar options
+                                                'FirstDay' => 1,
+                                                // 'contentheight' => 650,
+                                                'editable' => false,
+                                                'allDay' => false,
+                                                'slotLabelFormat' => 'HH:mm:ss',
+                                                'timeFormat' => 'HH:mm',
+                                            ])->setCallbacks([ //set fullcalendar callback options (will not be JSON encoded)
+                                        
+                                                'eventClick' => 'function($events, jsEvent, view) {
+                                                    $("#modalTitle").html($events.title);
+                                                    $("#status").html($events.id);
+                                                    {$("#assigned_user").html($events.user_name.name);}
+                                                    var date = $events.start._i;
+                                                    var time =date.substr(11,5);
+                                                    $("#Start").html(time);
+                                                    var edate = $events.end._i;
+                                                    var etime = edate.substr(11,5);
+                                                    $("#End").html(etime);
+                                                    $("#calendarModal").modal();
+                                                }',
+                                                'eventRender' => 'function($events, element) {
+                                                            
+                                                    $(element).tooltip({title: $events.title});             
+                                                }',
+                                                
+                                            ]);
+                                    }
+
+                                
+                            }
+                    }
+
+
+        // ->setOptions([ //set fullcalendar options
+        //     	'firstDay' => 1
+        //     ])->setCallbacks([ //set fullcalendar callback options (will not be JSON encoded)
+        //         'eventClick' => 'function() {
+        //             $("#showEvent").modal();
+        //          }'
+        //     ])
+
+
+    //     $calendar = \Calendar::addEvents($events)
+    // ->setOptions([ //set fullcalendar options
+	// 	'firstDay' => 1
+	// ])->setCallbacks([ //set fullcalendar callback options (will not be JSON encoded)
+    //     'eventClick' => 'function($events) {
+    //         console.log( $events);
+    //      }'
+    // ]);
     // $calendar = \Calendar::addEvents($events) //add an array with addEvents
     // ->setOptions([ //set fullcalendar options
 	// 	'firstDay' => 1
@@ -153,10 +307,4 @@ class EventController extends Controller
     {
         //
     }
-    public function display()
-    {
-        
-
-    }
-
 }

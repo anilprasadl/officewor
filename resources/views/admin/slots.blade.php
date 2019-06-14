@@ -27,6 +27,7 @@
                                         <tr>
                                             <th>Event Name</th>
                                             <th>Start Date</th>
+                                            <th>Assigned To</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -109,6 +110,59 @@
     </div>
     <!-- delete ends -->
 
+
+<!-- User Task Assign Modal Starts-->
+    <div id="showTask" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <span class="heading">
+                        <h4 class="modal-title">Project Task Assignment</h4>
+                        </span>
+                    <button type="button" class="close" data-dismiss="modal">&#10799;</button>
+                </div>
+                <form class="cmxform" ng-submit="saveTask()" ng-model="assign_user">
+                    <div class="modal-body">
+                        <br>
+                        <!-- Error begins -->
+                        <div class="alert alert-danger" id="error-alert" ng-if="error_msg">
+                            <a href="#" class="close" data-dismiss="alert">&times;</a> @{{ error_msg }}
+                        </div>
+                        <br>
+                        <!-- Error ends  -->
+
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-md-9     col-md-offset-1">
+                                    <div class="form-group">
+                                        <label for="Name">Project Name:</label>
+                                        @{{task.title}}
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Name">Status:</label>
+                                        @{{task.status}}
+                                    </div>                                    
+                                    <div class="form-group"  ng-init="userslist()">
+                                    <label for="userlist">User Name</label>
+                                    <select class="form-control" ng-model="assign_user.assigned_to"
+                                     ng-options="cat.id as cat.name for cat in users" ng-required="required" >
+                                    </select>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<!-- User Task Assign Modal Ends -->
 </div>
 @endsection @section('pageScript')
 
@@ -137,6 +191,9 @@
                     data: 'title'
                 }, {
                     data: 'start_date',
+                    searchable: false
+                }, {
+                    data: 'assigned_to',
                     searchable: false
                 }, {
                     data: 'action',
@@ -228,6 +285,7 @@
             });
         }
 
+        
         //Cancel Event
         $scope.closeSlot = function(id, status) {
             $scope.errors = $scope.successMessage = null;
@@ -247,7 +305,61 @@
                 $scope.loading = false;
             });
         }
+
+// Task Modal Show and Save 
+
+        $scope.assignUser =function(id){
+            $scope.task={}
+
+            var url = '/tasks/'+ id ;
+            $http.get(url).then(function(response){
+                if(response.status == 200)
+                {
+                    $('#showTask').modal('show');
+                    $scope.task=response.data.data;
+                    // console.log(response);
+                }
+            });
+        }
+
+        $scope.saveTask = function() {
+            $scope.loading = true;
+            $scope.assign_user.event_id=$scope.task.event_id
+            // console.log($scope.assign_user);
+            // console.log($scope.task)
+            $http.post('/saveTasks', $scope.assign_user).then(function(response) {
+                
+                if (response.status == 200) {
+                    $("#showTask").modal('hide');
+                    $scope.successMessage = response.data.message;
+                    $scope.listSlots();
+                } else {
+                    $scope.error_msg = response.data.data.error;
+                }
+            }).finally(function() {
+                $scope.loading = false;
+            });
+        }
+
+
+        $scope.userslist=function(){
+            $scope.errors = $scope.successMessage = null;
+            var url = 'admin/list';
+            $http.get(url).then(function(response) {
+                console.log(response);
+                if (response.status == 200) {
+                    $scope.users = response.data.data;
+                } else {
+                    $scope.errors = response.data.error.message;
+                }
+            });
+        }
+
+
         $scope.init();
+        
+        
+
     });
 </script>
 @endsection

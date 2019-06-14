@@ -92,7 +92,7 @@ p{
                                 <table>
                                     <tr>
                                         <td align="center">
-                                             DevOps Tool
+                                             DevOps Release Scheduler
                                         </td>
                                     </tr>
                                 </table>
@@ -111,8 +111,7 @@ p{
                 <table>
                     <tr>
                         <td align="center">
-                            <!-- <img src="{{ asset('asset/img/upreachpng.jpg')}}" width="130px"/> -->
-                            <p style="font-size:10px !important; color:grey;">With Regards-<strong>BOOK MY HUB</br>JMAN GROUP-CHENNAI</br></p>
+                            <p style="font-size:10px !important; color:grey;">With Regards-<strong>DevOps Release Scheduler</br>JMAN GROUP-CHENNAI</br></p>
                         </td>
                     </tr>
                 </table>

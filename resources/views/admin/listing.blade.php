@@ -86,7 +86,7 @@
                                     </div>
                                     <div class="checkbox">
                                     <label>
-                                    <input type="checkbox" class="checkbox" ng-true-value='{{App\User::STATUS_IS_NOT_ADMIN}}' ng-model="user.is_admin" />
+                                    <input type="checkbox" class="checkbox" ng-true-value='1' ng-model="user.is_admin" />
                                         Make Admin</label>
                                 </div>
                                 </div>

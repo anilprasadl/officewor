@@ -7,7 +7,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Auth\Events\Registered;
 // use App\Http\Controllers\myEventController;
+use Illuminate\Http\Request;
+
 use Mail;
 use App\Mail\sendRegisterMail;
 
@@ -31,7 +34,7 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/';
+    protected $redirectTo = '/login';
 
     /**
      * Create a new controller instance.
@@ -58,6 +61,12 @@ class RegisterController extends Controller
         ]);
     }
 
+    protected function registered(Request $request, $user)
+    {
+        $this->guard()->logout();
+        return redirect('/login')->with('status', 'We sent you an activation code. Check your email and click on the link to verify.');
+    }
+
     /**
      * Create a new user instance after a valid registration.
      *
@@ -72,6 +81,7 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
         ]);
+        event(new Registered($user));
     }
     public function sendRegisterNotication($user_name, $user_email){
         

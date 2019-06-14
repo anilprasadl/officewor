@@ -34,63 +34,56 @@
             </div>
         </div>
     </div>
-<!-- Modal Dialog -->
+<!-- Modal Dialog For Calendar Event popup -->
 
-    <div id="addSlot" class="modal fade" role="dialog">
-            <div class="modal-dialog">
+
+    <div id="calendarModal" class="modal fade" role="dialog">
+            <div class="modal-dialog ">
             <!-- Modal content-->
 
                 <div class="modal-content">
                     <div class="modal-header">
-                        <span class="heading">
-                        <h4 class="modal-title">Schedule your Event</h4>
-                        </span>
-                        <button type="button" class="close" data-dismiss="modal">&#10799;</button>
+                        
+                        <h3 id="modalTitle" class="modal-title"></h3>
+                        
                     </div>
-                    <form class="cmxform"  ng-submit="saveSlot()" ng-model="eventtypes">
+                    <form class="cmxform"  >
                     <div class="modal-body">
-                        <br>
-                    <!-- Error begins -->
-                        <div class="alert alert-danger" id="error-alert" ng-if="error_msg">
-                        <a href="#" class="close" data-dismiss="alert">&times;</a>
-                        @{{ error_msg }}
-                        </div>
-                        <br>
-                    <!-- Error ends  -->
-
                         <div class="container-fluid">
                             <div class="row">
-                                <div class="col-md-9     col-md-offset-1">
+                                <div class="col-md-9     col-md-offset-2">
                                     <div class="form-group">
-                                        <label for="Name">Project Name:</label>
-                                        <input type="text" class="form-control" ng-model="addevent.title" required>
-                                    </div>
-                                
-                                    <div class="form-group">
-                                        <label for="start_date">Start Date</label>
-                                        <div class="input-group" moment-picker="addevent.start_date" format="YYYY-MM-DD HH:mm"  min-date="ctrl.minDateMoment" >
-                                            <input class="form-control" placeholder="Select a date" ng-model="addevent.start_date"
-                                                ng-model-options="{ updateOn: 'blur' }"  required>
-                                            <span class="input-group-addon">
-                                                <i class="fa fa-calendar"></i>
-                                            </span>
+                                       
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <label for="assigned_user">Assigned To:</label>
+                                                <!-- </div>
+                                                <div class="col-md-2"> -->
+                                                <span id="assigned_user" class="modal-body"></span>
+                                            </div>
                                         </div>
-                                        <label for="end_date">End Date</label>
-                                        <div class="input-group" moment-picker="addevent.end_date" format="YYYY-MM-DD HH:mm" min-date="ctrl.minDateMoment">
-                                            <input class="form-control" placeholder="Select a date" ng-model="addevent.end_date"
-                                                ng-model-options="{ updateOn: 'blur' }" required >
-                                            <span class="input-group-addon">
-                                                <i class="fa fa-calendar"></i>
-                                            </span>
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="Status">Status:</label>
+                                                <span id="status" class="modal-body"></span><br>
+                                            </div>
                                         </div>
+                                        
+                                                                     
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<u><label>Time:</label></u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="Start"></span>-<span id="End"></span>
+                                            </div>
+                                        </div>
+                                   
+      
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Submit</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
                     </form>
                 </div>

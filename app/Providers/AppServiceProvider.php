@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Providers;
+use Carbon\Carbon;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -23,6 +24,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        \Validator::extend('email_domain', function($attribute, $value, $parameters, $validator) {
+        	$allowedEmailDomains = ['jmangroup.com', 'ig.com'];
+        	return in_array( explode('@', $parameters[0])[1] , $allowedEmailDomains);
+        });
     }
 }

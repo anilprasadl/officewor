@@ -102,6 +102,7 @@ class AdminController extends Controller
             'id' => $user['id'],
             'name' => $user['name'],
             'email' => $user['email'],
+            'is_admin' => $user['is_admin']
         ]
      
         ]);
@@ -200,4 +201,41 @@ class AdminController extends Controller
             return response($e->getMessage());
         }
     }
+    public function listAdmin(Datatables $datatabels)
+    {
+        try
+        {
+            // if(Auth::user()->is_super_admin)
+            // {
+                
+            $records= User::select('id','name','email','is_admin')
+            ->where('id','!=',Auth::user()->id)
+            ->where('is_admin',1)
+            ->orderBy('name')->get();
+
+
+            return response(['data'=>$this->transformAll($records->toArray())]);
+            return $records;
+            
+        // }
+        }catch(\Exception $e){  
+            return response($e->getMessage());
+        }
+    }
+    public function transform($user)
+    {   
+        $record=[
+            'id'=>$user['id'],
+            'name'=>$user['name'],
+            'email'=>$user['email']
+        ];
+        return $record;
+    }
+    public function transformAll($users)
+    {
+        return array_map([$this,'transform'],$users);
+    }
+    
 }
+
+
