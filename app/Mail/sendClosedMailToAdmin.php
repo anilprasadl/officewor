@@ -9,7 +9,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
 
-class SendBookingMail extends Mailable
+class sendClosedMailToAdmin extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -30,16 +30,15 @@ class SendBookingMail extends Mailable
      */
     public function build()
     {
-        try
-          {
-            return $this->view('emails.sendBookingMail')
+        try{
+            return $this->view('emails.sendClosedMailToAdmin')
             ->from(SiteConstant::MAIL_FROM)
-            ->to($this->records['email'])
-            ->subject(SiteConstant::SUBJECT_NOTIFICATION)
-            ->with(['name' => $this->records['name'],'event_name' => $this->records['event_name'],
-            'event_start_date' => $this->records['event_start_date']]);
-          }catch(\Exception $e){
-              Log::error($e->getMessage());
-          }
+            // ->to($this->records['email'])
+            ->to(SiteConstant::MAIL_TO)
+            ->subject(SiteConstant::SUBJECT_ADMIN_NOTIFICATION)
+            ->with(['name' => $this->records['name'],'event_name' => $this->records['event_name'],'assigned_to'=>$this->records['assigned_to'],'event_start_date' => $this->records['event_start_date']]);
+        }catch(\Exception $e){
+            Log::error($e->getMessage());
+        }
     }
 }

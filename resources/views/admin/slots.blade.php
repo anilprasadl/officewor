@@ -5,7 +5,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading">Booked Events</div>
                 <div class="panel-body">
-                    <div class="alert alert-success" ng-if="successMessage">
+                    <div class="alert alert-success" ng-if="successMessage" id="success-alert">
                         <a href="#" class="close" data-dismiss="alert">&#10799;</a>
                         <span ng-model="successMessage">@{{successMessage}}</span>
                     </div>
@@ -110,8 +110,7 @@
     </div>
     <!-- delete ends -->
 
-
-<!-- User Task Assign Modal Starts-->
+    <!-- User Task Assign Modal Starts-->
     <div id="showTask" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <!-- Modal content-->
@@ -123,7 +122,7 @@
                         </span>
                     <button type="button" class="close" data-dismiss="modal">&#10799;</button>
                 </div>
-                <form class="cmxform" ng-submit="saveTask()" ng-model="assign_user">
+                <form class="cmxform" ng-submit="saveTask()" ng-model="task">
                     <div class="modal-body">
                         <br>
                         <!-- Error begins -->
@@ -143,13 +142,12 @@
                                     <div class="form-group">
                                         <label for="Name">Status:</label>
                                         @{{task.status}}
-                                    </div>                                    
-                                    <div class="form-group"  ng-init="userslist()">
-                                    <label for="userlist">User Name</label>
-                                    <select class="form-control" ng-model="assign_user.assigned_to"
-                                     ng-options="cat.id as cat.name for cat in users" ng-required="required" >
-                                    </select>
-                                </div>
+                                    </div>
+                                    <div class="form-group" ng-init="userslist()">
+                                        <label for="userlist">User Name</label>
+                                        <select class="form-control" ng-model="task.assigned_to" ng-options="cat.id as cat.name for cat in users" ng-required="required">
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -162,7 +160,50 @@
             </div>
         </div>
     </div>
-<!-- User Task Assign Modal Ends -->
+    <!-- User Task Assign Modal Ends -->
+    <!-- Close Task Modal Starts -->
+    <div id="closeTask" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&#10799;</button>
+                    <h4 class="modal-title">Close Task</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-9    col-md-offset-1">
+                                <form class="cmxform" ng-model="mytasks">
+                                    <div class="form-group">
+                                        <p>@{{ delete_msg }}</p>
+                                        <br>
+                                        <br>
+                                        <br>
+                                        <div class="form-group">
+                                            <label for="mytasks">State * </label>
+                                            <select class="form-control" ng-init="fetchState()" ng-model="mytasks.state" data-size="10" ng-required="required" ng-options=" st.name for st in state">
+                                            <option value="" selected disabled hidden>Select State</option>
+                                            </select>
+                                        </div>
+                                        <label>Comments *</label>
+                                        <div class="form-group">
+                                            <textarea class="input-group" rows="3" cols="50" placeholder="Please give us a comment for cancellation!" ng-model="mytasks.comments" required></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                                            No</button>
+                                        <button type="submit" class="btn btn-danger">Yes</button>
+                                    </div>
+                            </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Close Task Modal Ends -->
 </div>
 @endsection @section('pageScript')
 
@@ -173,6 +214,7 @@
 
         $scope.init = function() {
             $scope.user = {};
+            $scope.task = {};
             $scope.listSlots();
         }
 
@@ -184,7 +226,7 @@
                 serverSide: true,
                 destroy: true,
                 "oLanguage": {
-                    "sEmptyTable": "No Event Types Created till Now !!"
+                    "sEmptyTable": "No Tasks Created till Now "
                 },
                 ajax: 'slots/booked',
                 columns: [{
@@ -217,18 +259,30 @@
             $scope.user = {};
             $("#addUser").modal("show");
         };
+        $scope.fetchState = function() {
+            $scope.state = [{
+                id: 1,
+                name: '{{App\Event::ADMIN_STATE_COMPLETED}}'
+            }, {
+                id: 2,
+                name: '{{App\Event::ADMIN_STATE_RS}}'
+            }, {
+                id: 3,
+                name: '{{App\Event::ADMIN_STATE_DE}}'
+            }, {
+                id: 4,
+                name: '{{App\Event::ADMIN_STATE_OTHER}}'
+            }];
+
+        };
         //Edit eventtype
         $scope.editUser = function(id) {
             $scope.errors = $scope.successMessage = null;
             var url = 'users/' + id;
             $http.get(url).then(function(response) {
-                // console.log(response);
                 if (response.status == 200) {
-                    console.log(response);
                     $("#addUser").modal('show');
-                    
                     $scope.user = response.data.data;
-                    // console.log($scope.user);
                     $scope.listSlots();
 
                 } else {
@@ -237,26 +291,24 @@
             });
         }
 
-        //Delete eventtype
-        $scope.deleteUser = function(id) {
-            console.log(id);
+        $scope.closeTask = function($id, $status) {
+            $scope.mytasks = {};
             $scope.errors = $scope.successMessage = null;
-            $scope.selected_user_id = id;
+            $scope.mytasks.id = $id;
+            $scope.mytasks.status = $status;
             $scope.show_delete = true;
-            $scope.delete_msg = 'You are going to remove this record.  Are you Sure?';
-            $("#deleteUser").modal('show');
-            // console.log("Test");return false;
+            $scope.delete_msg = 'You are going to Cancel this event. Are you Sure?';
+            $("#closeTask").modal('show');
         }
 
-        $scope.deleteConfirmed = function() {
-            var url = '/users/' + $scope.selected_user_id;
-            $http.delete(url).then(function(response) {
-                console.log(response);
+        $scope.closeConfirmed = function() {
+            console.log($scope.mytasks);
+            $http.post('/saveSlot', $scope.mytasks).then(function(response) {
                 $scope.error_msg = $scope.successMessage = null;
                 if (response.status == 200) {
-                    $scope.successMessage = response.data.data.message;
+                    $scope.successMessage = response.data.message;
                     $scope.listSlots();
-                    $("#deleteUser").modal('hide');
+                    $("#closeTask").modal('hide');
                 } else {
                     $scope.show_delete = false;
                     $scope.error_msg = response.data.error.message;
@@ -266,16 +318,11 @@
 
         $scope.saveUser = function() {
             $scope.loading = true;
-            // $scope.error_msg = $scope.successMessage = null;
             $http.post('users', $scope.user).then(function(response) {
-                // console.log($scope.user);
-                // console.log(response);return false;
                 if (response.status == 200) {
                     $("#addUser").modal('hide');
-                    // console.log(response);
                     $scope.successMessage = response.data.message;
                     $scope.listSlots();
-
                     // window.location.reload();
                 } else {
                     $scope.error_msg = response.data.data.error;
@@ -285,15 +332,13 @@
             });
         }
 
-        
         //Cancel Event
         $scope.closeSlot = function(id, status) {
             $scope.errors = $scope.successMessage = null;
             $scope.loading = true;
-            var url = '/slots/' + id +'/'+ status;
+            var url = '/slots/' + id + '/' + status;
             $http.post(url).then(function(response) {
                 if (response.status == 200) {
-                    console.log(response);
                     $scope.successMessage = response.data.message;
                     $scope.listSlots();
                 } else {
@@ -306,29 +351,24 @@
             });
         }
 
-// Task Modal Show and Save 
+        // Task Modal Show and Save 
+        $scope.assignUser = function(id) {
+            $scope.task = {};
 
-        $scope.assignUser =function(id){
-            $scope.task={}
-
-            var url = '/tasks/'+ id ;
-            $http.get(url).then(function(response){
-                if(response.status == 200)
-                {
+            var url = '/tasks/' + id;
+            $http.get(url).then(function(response) {
+                if (response.status == 200) {
                     $('#showTask').modal('show');
-                    $scope.task=response.data.data;
+                    $scope.task = response.data.data;
                     // console.log(response);
                 }
             });
         }
-
         $scope.saveTask = function() {
             $scope.loading = true;
-            $scope.assign_user.event_id=$scope.task.event_id
-            // console.log($scope.assign_user);
-            // console.log($scope.task)
-            $http.post('/saveTasks', $scope.assign_user).then(function(response) {
-                
+            console.log($scope.task);
+            $http.post('/saveTasks', $scope.task).then(function(response) {
+
                 if (response.status == 200) {
                     $("#showTask").modal('hide');
                     $scope.successMessage = response.data.message;
@@ -341,12 +381,10 @@
             });
         }
 
-
-        $scope.userslist=function(){
+        $scope.userslist = function() {
             $scope.errors = $scope.successMessage = null;
             var url = 'admin/list';
             $http.get(url).then(function(response) {
-                console.log(response);
                 if (response.status == 200) {
                     $scope.users = response.data.data;
                 } else {
@@ -354,12 +392,10 @@
                 }
             });
         }
-
-
+        $("#success-alert").fadeTo(2000, 500).slideUp(500, function() {
+            $("#success-alert").slideUp(500);
+        });
         $scope.init();
-        
-        
-
     });
 </script>
 @endsection

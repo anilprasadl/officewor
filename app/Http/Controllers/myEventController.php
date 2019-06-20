@@ -10,14 +10,19 @@ use App\Event;
 use App\User;
 use App\UserEventLogs;
  
-use App\Mail\SendBookingMail;
-use App\Mail\sendRegisterMail;
-use App\Mail\sendCancelMail;
+use App\Mail\sendBookingMail;
 use App\Mail\sendBookingMailToAdmin;
+use App\Mail\sendCancelMail;
+use App\Mail\sendCancelMailToAdmin;
+use App\Mail\sendClosedMail;
+use App\Mail\sendClosedMailToAdmin;
+use App\Mail\sendAssignedMail;
+use App\Mail\sendAssignedMailToAdmin;
+use App\Mail\sendRegisterMail;
 use Mail;
 use DB;
 use Auth;
-
+use Carbon\Carbon;
 class myEventController extends Controller
 {
     /**
@@ -45,21 +50,28 @@ class myEventController extends Controller
                 ->where("created_by",$user->id)
                 ->whereNotIn("status",[\App\Event::STATUS_CANCELLED,\App\Event::STATUS_COMPLETED])
                 ->orderBy('title')->get();
-                // print_r($records[0]);exit;
+                // print_r( Carbon::now()->toDateTimeString());exit;
                 return $datatabels::of($records)
                 ->addColumn('action', function ($record) {
-                    if($record->status==\App\Event::STATUS_ASSIGNED)
+                    if($record->status==\App\Event::STATUS_ASSIGNED && $record->start_date <= Carbon::now()->toDateTimeString())
                     return "<button class='btn btn-circle btn-danger' title='Task is in Progress' disabled>Cancel</button>";
                     else
-                    $buttons = ' <button ng-click="deleteEventType(' . $record->id . ')"  '
-                            . 'title="Delete" alt="Delete" '
+                    $buttons = ' <button ng-click="cancelEvent(' . $record->id .  ',\''.Event::STATUS_CANCELLED.'\')"  '
+                            . 'title="Cancel" alt="Cancel" '
                             . 'class=" btn btn-circle btn-mn btn-danger">'
                             . '<span >Cancel</span></button>';
 
                     return $buttons;
-                })->make();
+                })
+                ->editColumn('activated','@if($activated)
+                        Activated
+                    @else
+                        Processing
+                    @endif')
+                    ->editColumn('start_date',Carbon::parse($start_date)->format("M d Y")) 
+            ->make();
             }catch(\Exception $e){  
-                return $this->respondInternalError($e->getMessage());
+                return response($e->getMessage());
             }
     } 
     public function listDeletedEvents(Datatables $datatabels){
@@ -75,7 +87,7 @@ class myEventController extends Controller
                     
                 })->make();
             }catch(\Exception $e){  
-                return $this->respondInternalError($e->getMessage());
+                return response($e->getMessage());
             }
     } 
     /**
@@ -91,7 +103,7 @@ class myEventController extends Controller
 
         try{
             if(Auth::user()->is_admin){
-                $records = Event::select("id","title","start_date","status","created_by","created_at","updated_by","updated_at")
+                $records = Event::withTrashed()->select("id","title","start_date","status","created_by","created_at","updated_by","updated_at")
                 ->orderBy('title')->get();
                 // print_r($records);exit;
 
@@ -108,7 +120,7 @@ class myEventController extends Controller
             }else
             {            
                 $user = Auth::user();
-                $records = Event::select("id","title","start_date","status","created_by","created_at","updated_by","updated_at")
+                $records = Event::withTrashed()->select("id","title","start_date","status","created_by","created_at","updated_by","updated_at")
                 ->where("created_by",$user->id)
                 ->orderBy('title')->get();
                 return $datatabels::of($records)
@@ -123,7 +135,7 @@ class myEventController extends Controller
                 })->make();
             }               
             }catch(\Exception $e){  
-                return $this->respondInternalError($e->getMessage());
+                return response($e->getMessage());
             }
     }
 
@@ -140,8 +152,6 @@ class myEventController extends Controller
         //    print_r(user()->is_admin);exit;
            try{ 
             $rv = DB::transaction(function()use($request) {
-                
-            // print_r($request->id);exit;
             $user = Auth::user();
             if($request->id){
             $event = Event::find($request->id);
@@ -181,14 +191,9 @@ class myEventController extends Controller
             $event->end_date = $request->end_date;
             $event->status = $request->status;
             $event->save();
-            // print_r($event);
-
-
             $this->userEventLogs($event->id,$user->id);
-
-           $this->sendBookingNotication($event->id,$user);
-        //    if(user()->is_admin)
-           $this->sendBookingNoticationToAdmin($event->id,$user);
+            $this->sendBookingNotication($event->id,$user);
+            $this->sendBookingNoticationToAdmin($event->id,$user);
 
             return response([
             'data' => [
@@ -208,7 +213,7 @@ class myEventController extends Controller
 
 
     /**
-     * Display the specified resource.
+     * Display the specified Event.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
@@ -233,27 +238,16 @@ class myEventController extends Controller
         ]);
     }
 
-
-
+    /**
+     * Show the Detailed information of a Task 
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
     public function taskInfo($id)
     {
-        // $event=Event::find($id);
-
         $logs = UserEventLogs::where('event_id',$id)->get();
-        // print_r(count($logs));exit;
-        // foreach($logs as $log)
-        // print_r($logs);exit;
-// {
-        // if(!$event)
-        // {
-        // return response(
-        //     ['error'=> "Event not found."
-        //     ]);
-        // }
+    
         return response(['data'=>$this->transformAll($logs->toArray())]);
-        return $records;
-        
-// }
     } 
 
     /**
@@ -280,7 +274,7 @@ class myEventController extends Controller
     }
     public function display()
     {
-        return view('track.task'); 
+        return view('timeline.listing'); 
     }
 
     /**
@@ -289,16 +283,19 @@ class myEventController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroyEvent(Request $request)
     {
         try
-        {   $this->eventCancelNotification($id);
-            
-            $record = Event::find($id);
-            $record->status=\App\Event::STATUS_CANCELLED;
+        {   
+            $record = Event::find($request->id);
+            $record->status = $request->status;
+            $record->description = $request->comments;
+            $record->state = $request->state['name'];
             $record->save();
-            $this->userEventLogs($id,Auth::user()->id);
-            $record = Event::destroy($id);
+            $this->eventCancelNotification($request->id);
+            $this->eventCancelNotificationToAdmin($request->id);
+            $this->userEventLogs($request->id,Auth::user()->id);
+            $record = Event::destroy($request->id);
             return response([
                 'data' => [
                     "message" => "Delete success.",
@@ -306,7 +303,7 @@ class myEventController extends Controller
                 ]); 
            
         }catch(Exception $e){
-                    return $this->respondInternalError($e->getMessage());
+                    return response($e->getMessage());
         
             }       
     }
@@ -337,14 +334,13 @@ class myEventController extends Controller
         $records['email'] = $user->email;
         $records['event_name'] = $event->title;
         $records['event_start_date'] = $event->start_date;
-        
-        Mail::send(new sendBookingMail($records));
+            Mail::send(new sendBookingMail($records));
     }
 
 
     
     /**
-     * Send Mail to the Users who book Slots.
+     * Send Mail to the Admin when user books Slots.
      *
      * @param int event_id - $id 
      * @return send a mail to respective user. 
@@ -353,105 +349,202 @@ class myEventController extends Controller
     public function sendBookingNoticationToAdmin($event_id, $user = array() ){
         
         $event = Event::find($event_id);
-        // dd($event);exit;
         $records = array();
         $records['name'] = $user->name;
         $records['email'] = $user->email;
         $records['event_name'] = $event->title;
         $records['event_start_date'] = $event->start_date;
         $records['event_end_date'] = $event->end_date;
-        // print_r($records);exit;
-        Mail::send(new sendBookingMailToAdmin($records));
+            Mail::send(new sendBookingMailToAdmin($records));
     }
+    /**
+     * Send Mail to the Admin when user books Slots.
+     *
+     * @param int event_id - $id 
+     * @return send a mail to respective user. 
+     */
 
     public function sendRegisterNotication($user_name, $user_email){
         
         $records = array();
         $records['name'] = $user_name;
         $records['email'] = $user_email;
-       
-        Mail::send(new SendRegisterMail($records));
+            Mail::send(new SendRegisterMail($records));
     }
-/* eventCancelNotification Function to send the Mails  when the event is cancelled
 
-* @param  int  event_id 
-*/
+    /* eventCancelNotification Function to send the Mails to user when the event is assigned to admin
 
-public function eventCancelNotification($event_id){
+    * @param  int  event_id 
+    */
+    public function eventAssignedNotification($event_id){
 
         $event = Event::find($event_id);
-        $user=Auth::user();
+        $user=User::find($event->created_by);
         $event = Event::find($event_id);
         $records = array();
         $records['name'] = $user->name;
         $records['email'] = $user->email;
         $records['event_name'] = $event->title;
+        $records['assigned_to'] = $this->getUserName($event->assigned_to);
         $records['event_start_date'] = $event->start_date;
-            Mail::send(new sendCancelMail($records));
-}
+            Mail::send(new sendAssignedMail($records));
+    }
 
+    /* eventAssignedNotificationToAdmin Function to send the Mails to Admin when the event is assigned to admin
 
-public function userEventLogs($event_id,$user_id)
-{
-    $event=Event::find($event_id);
-    if($event)
-            {
-                $logs=new UserEventLogs;
-                $logs->event_id=$event->id;
-                $logs->user_id=$user_id;
-                $logs->status=$event->status;
-                $logs->assigned_to=$this->getUserName($event->assigned_to);
-                $logs->assigned_by=$this->getUserName($event->assigned_by);
-                $logs->created_by=$this->getUserName($event->created_by);
-                $logs->updated_by=$this->getUserName($event->updated_by);
-                $logs->completed_by=$this->getUserName($event->completed_by);
-                $logs->updated_at=$event->updated_at;
-                $logs->deleted_at=$event->deleted_at;
-                // print_r($logs);exit;
-                $logs->save();
-            }else{
-                return response(['error'=>'No Events Found']);
-            }
-}
-            public function timelineTrack($event,$log)
-            {
-                print_r($log);
-                
-            }
+    * @param  int  event_id 
+    */
+    public function eventAssignedNotificationToAdmin($event_id){
 
-            public function transform($log)
-            {   $event=Event::find($log['event_id']);
-                return [
-                        'id' => $event['id'],
-                        'title' => $event['title'],
-                        'start_date' => $event['start_date'],
-                        'end_date' => $event['end_date'],
-                        'status'=>$log['status'],
-                        'assigned_to'=>$log['assigned_to'],
-                        'assigned_by'=>$log['assigned_by'],
-                        'created_by'=>$log['created_by'],
-                        'created_at'=>$log['created_at'],
-                        'description'=>$event['description'],
-                        'created_by'=>$log['completed_by'],
+        $event = Event::find($event_id);
+        $user=User::find($event->assigned_to);
+        $event = Event::find($event_id);
+        $records = array();
+        $records['name'] = $user->name;
+        $records['email'] = $user->email;
+        $records['event_name'] = $event->title;
+        $records['assigned_to'] = $this->getUserName($event->assigned_to);
+        $records['event_start_date'] = $event->start_date;
+            Mail::send(new sendAssignedMailToAdmin($records));
+    }
 
-                    ]
-                
-                  ;
-            }
-            public function transformAll($logs)
+    /* eventCancelNotification Function to send the Mails to user when the event is cancelled
+
+    * @param  int  event_id 
+    */
+    public function eventCancelNotification($event_id){
+
+            $event = Event::find($event_id);
+            $user=Auth::user();
+            $event = Event::find($event_id);
+            $records = array();
+            $records['name'] = $user->name;
+            $records['email'] = $user->email;
+            $records['event_name'] = $event->title;
+            $records['event_start_date'] = $event->start_date;
+                Mail::send(new sendCancelMail($records));
+    }
+
+    /* eventCancelNotificationToAdmin Function to send the Mails to admin when the event is cancelled
+
+    * @param  int  event_id 
+    */
+    public function eventCancelNotificationToAdmin($event_id){
+
+            $event = Event::find($event_id);
+            $user=Auth::user();
+            $event = Event::find($event_id);
+            $records = array();
+            $records['name'] = $user->name;
+            $records['email'] = $user->email;
+            $records['event_name'] = $event->title;
+            $records['event_start_date'] = $event->start_date;
+                Mail::send(new sendCancelMailToAdmin($records));
+    }
+    /* eventCloseNotification Function to send the Mails to user when the event is closed
+
+    * @param  int  event_id 
+    */
+    public function eventCloseNotification($event_id){
+
+            $event = Event::find($event_id);
+            $user=User::find($event->created_by);
+            $records = array();
+            $records['name'] = $user->name;
+            $records['email'] = $user->email;
+            $records['event_name'] = $event->title;
+            $records['assigned_to'] = $this->getUserName($event->assigned_to);
+            $records['event_start_date'] = $event->start_date;
+                Mail::send(new sendClosedMail($records));
+    }
+    /* eventCloseNotificationToAdmin Function to send the Mails to admin when the event is closed
+
+    * @param  int  event_id 
+    */
+    public function eventCloseNotificationToAdmin($event_id){
+
+            $event = Event::find($event_id);
+            if($event->assigned_to)
             {
-                return array_map([$this,'transform'],$logs);
+                $user=User::find($event->assigned_to);
             }
-            public function getUserName($id)
+            else
             {
-               if($id)
+                $user=Auth::user();
+            }
+            $event = Event::find($event_id);
+            $records = array();
+            $records['name'] = $user->name;
+            $records['email'] = $user->email;
+            $records['event_name'] = $event->title;
+            $records['assigned_to'] = $this->getUserName($event->assigned_to);
+            $records['event_start_date'] = $event->start_date;
+                Mail::send(new sendClosedMailToAdmin($records));
+    }
+
+    public function userEventLogs($event_id,$user_id)
+    {
+        $event=Event::find($event_id);
+        if($event)
                 {
-                    $user=User::find($id);
-                    // print_r($user);exit;
-                    return $user->name;
-                }else
-                {return Null;}
-            }
+                    $logs=new UserEventLogs;
+                    $logs->event_id=$event->id;
+                    $logs->user_id=$user_id;
+                    $logs->status=$event->status;
+                    $logs->assigned_to=$this->getUserName($event->assigned_to);
+                    $logs->assigned_by=$this->getUserName($event->assigned_by);
+                    $logs->created_by=$this->getUserName($event->created_by);
+                    $logs->updated_by=$this->getUserName($event->updated_by);
+                    $logs->completed_by=$this->getUserName($event->completed_by);
+                    $logs->description=$event->description;
+                    $logs->state=$event->state;
+                    $logs->updated_at=$event->updated_at;
+                    $logs->deleted_at=$event->deleted_at;
+                    $logs->save();
+                }else{
+                    return response([
+                        'data'=>[
+                            'error'=>'No Events Found'
+                            ]
+                        ]);
+                }
+
+        }
+
+    public function transform($log)
+    {   $event=Event::withTrashed()->find($log['event_id']);
+        return [
+                'id' => $event['id'],
+                'title' => $event['title'],
+                'start_date' => $event['start_date'],
+                'end_date' => $event['end_date'],
+                'status'=>$log['status'],
+                'assigned_to'=>$log['assigned_to'],
+                'assigned_by'=>$log['assigned_by'],
+                'updated_at_date'=>Carbon::parse($log['updated_at'])->format('M d Y'),
+                'updated_at_time'=>Carbon::parse($log['updated_at'])->format('H:i'),
+                'created_by'=>$log['created_by'],
+                'created_at'=>$log['created_at'],
+                'completed_by'=>$log['completed_by'],
+                'reason'=>$log['state'],
+                'description'=>$log['description'],
+            ];
+    }
+    public function transformAll($logs)
+    {
+        return array_map([$this,'transform'],$logs);
+    }
+    public function getUserName($id)
+    {
+        if($id)
+        {
+            $user=User::find($id);
+            return $user->name;
+        }else
+        {
+            return Null;
+        }
+    }
 
 }
 

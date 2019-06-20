@@ -55,6 +55,8 @@ Route::get('myevents/deleted-list', 'myEventController@listDeletedEvents');
 
 Route::resource('myevents', 'myEventController');
 
+Route::post('/myevents-cancel', 'myEventController@destroyEvent');
+
 Route::group(['middleware' => 'IsAdmin'], function() {
 
 Route::group(['middleware' => 'IsSuperUser'], function() {  
@@ -71,7 +73,7 @@ Route::get('/tasks/{id}','SlotController@taskAssign');
 
 Route::post('/saveTasks','SlotController@saveTasks');
 
-Route::post('/slots/{id}/{status}','SlotController@store');
+Route::post('/saveSlot','SlotController@store');
 
 Route::get('slots/booked','SlotController@listBookedSlots');
 

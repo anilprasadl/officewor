@@ -11,11 +11,11 @@
 <body>
     <h5>Notification!!</h5>
 
-    <p>Hello {{$name}}!!!</p>
-
+    <p>Hello {{$assigned_to}}!!!</p>
     <br/>
-<div class="col-md-12" style="color:white;background-color:red;">Event Cancellation</div>
-    <p>You have cancelled your event {{$event_name}} which is going to be conducted on {{ $event_start_date }}. Login to DevOps Tool for further details.
+    
+    <p>You have been assigned to the event {{$event_name}} which is booked on {{ $event_start_date }} . Login to DevOps Tool for further details.
+
     </p>
 
     <br/>

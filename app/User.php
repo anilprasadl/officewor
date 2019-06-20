@@ -6,9 +6,14 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+\Carbon\Carbon::setToStringFormat('d-m-Y');
 
 class User extends Authenticatable implements MustVerifyEmail
 {
+    // protected $dates = ['created_at', 'updated_at', 'deleted_at'];
+
+    // protected $dateFormat = 'U';
+    
     use SoftDeletes;
     use Notifiable;
 

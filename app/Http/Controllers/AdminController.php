@@ -54,7 +54,6 @@ class AdminController extends Controller
             $user_add->name = $request->name;
             $user_add->email = $request->email;
             $user_add->is_admin = $request->is_admin;
-            // print_r($user->all());exit;
             $user_add->save();
 
             } else{

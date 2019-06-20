@@ -8,9 +8,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Log;
-
-
-class sendCancelMail extends Mailable
+class sendAssignedMailToAdmin extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -31,13 +29,15 @@ class sendCancelMail extends Mailable
      */
     public function build()
     {
-        try{
-        return $this->view('emails.sendCancelMail')
-        ->from(SiteConstant::MAIL_FROM)
-        ->to($this->records['email'])
-        ->subject(SiteConstant::SUBJECT_NOTIFICATION)
-        ->with(['name' => $this->records['name'],'event_name' => $this->records['event_name'],'event_start_date' => $this->records['event_start_date']]);
-    }catch(\Exception $e){
+        try
+          {
+            return $this->view('emails.sendAssignedMailToAdmin')
+            ->from(SiteConstant::MAIL_FROM)
+            ->to($this->records['email'])
+            ->to(SiteConstant::MAIL_TO)
+            ->subject(SiteConstant::SUBJECT_ADMIN_NOTIFICATION)
+            ->with(['name' => $this->records['name'],'event_name' => $this->records['event_name'],'assigned_to'=>$this->records['assigned_to'],'event_start_date' => $this->records['event_start_date']]);
+        }catch(\Exception $e){
             Log::error($e->getMessage());
         }
     }

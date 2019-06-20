@@ -41,7 +41,8 @@ class CreateEventsTable extends Migration
             $table->foreign('updated_by')->references('id')->on('users')->onDelete('cascade');
             $table->integer('completed_by')->unsigned()->nullable();
             $table->foreign('completed_by')->references('id')->on('users')->onDelete('cascade');
-            $table->string('description', 400)->nullable();
+            $table->string('state')->nullable();
+            $table->mediumText('description')->nullable();
             $table->timestamps();
             $table->softDeletes();
 

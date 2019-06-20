@@ -13,7 +13,7 @@
                         </div>
                     </div>
                     <br>
-                    <div class="alert alert-success" ng-if="successMessage">
+                    <div class="alert alert-success" ng-if="successMessage" id="success-alert">
                         <a href="#" class="close" data-dismiss="alert">&#10799;</a>
                         <span ng-model="successMessage">@{{successMessage}}</span>
                     </div>
@@ -85,10 +85,9 @@
                                         <input type="text" class="form-control" ng-model="user.email" required>
                                     </div>
                                     <div class="checkbox">
-                                    <label>
-                                    <input type="checkbox" class="checkbox" ng-true-value='1' ng-model="user.is_admin" />
-                                        Make Admin</label>
-                                </div>
+                                        <label>
+                                            <input type="checkbox" class="checkbox" ng-true-value='1' ng-model="user.is_admin" /> Make Admin</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -153,7 +152,7 @@
                     data: 'email',
                     searchable: false
                 }, {
-                    data:'is_admin'
+                    data: 'is_admin'
 
                 }, {
                     data: 'action',
@@ -186,7 +185,7 @@
                 if (response.status == 200) {
                     console.log(response);
                     $("#addUser").modal('show');
-                    
+
                     $scope.user = response.data.data;
                     // console.log($scope.user);
                     $scope.listUsers();
@@ -263,6 +262,9 @@
                 $scope.loading = false;
             });
         }
+        $("#success-alert").fadeTo(2000, 500).slideUp(500, function() {
+            $("#success-alert").slideUp(500);
+        });
         $scope.init();
     });
 </script>

@@ -24,7 +24,9 @@ class UserEventLogs extends Migration
             $table->string('assigned_by')->nullable();
             $table->string('completed_by')->nullable();
             $table->string('created_by');
-            $table->integer('updated_by')->unsigned()->nullable();
+            $table->string('updated_by')->nullable();
+            $table->string('state')->nullable();
+            $table->mediumText('description')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

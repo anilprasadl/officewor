@@ -76,7 +76,7 @@ class SlotController extends Controller
                             . 'class=" btn btn-circle btn-mn btn-success">'
                             . '<span class="fa fa-tasks"></span></button>' ;
                             // print_r(Auth::user()->is_super_user || Auth::user()->is_admin && $record->assigned_to == Auth::user()->id);exit;
-                            $buttons .= ' <button ng-click="closeSlot(' . $record->id . ',\''.Event::STATUS_COMPLETED.'\')"  '
+                            $buttons .= ' <button ng-click="closeTask(' . $record->id . ',\''.Event::STATUS_COMPLETED.'\')"  '
                             . 'title="Close" alt="Close" '
                             . 'class=" btn btn-circle btn-mn btn-danger">'
                             . '<span>Close</span></button>';  
@@ -84,7 +84,7 @@ class SlotController extends Controller
                     }
                     if(Auth::user()->is_admin && $record->assigned_to === Auth::user()->id)
                     {
-                            $buttons .= ' <button ng-click="closeSlot(' . $record->id . ',\''.Event::STATUS_COMPLETED.'\')"  '
+                            $buttons .= ' <button ng-click="closeTask(' . $record->id . ',\''.Event::STATUS_COMPLETED.'\')"  '
                             . 'title="Close" alt="Close" '
                             . 'class=" btn btn-circle btn-mn btn-danger">'
                             . '<span>Close</span></button>';
@@ -118,29 +118,31 @@ class SlotController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store($id, $status)
+    public function store(Request $request)
     {
         try
         {
             
             $user=Auth::user();
-            if($id){
-            $event = Event::find($id);
+            if($request->id){
+            $event = Event::find($request->id);
             $event->updated_by = $user->id;
             }else {
             $event = new Event;
             $event->created_by = $user->id;
             }
-            // print_r($event->all());exit;
-            $event->status=$status;
-            if($status==App\Event::STATUS_COMPLETED)
+            $event->status=$request->status;
+            $event->description=$request->comments;
+            $event->state=$request->state['name'];
+            if($status = \App\Event::STATUS_COMPLETED)
             {
                 $event->completed_by=$user->id;
             }
-            // print_r($event->all());exit;
 
+            
+            $this->my_event_controller->eventCloseNotification($event->id);
+            $this->my_event_controller->eventCloseNotificationToAdmin($event->id);
             $event->save();
-
             $this->my_event_controller->userEventLogs($event->id,$user->id);
 
             return response([
@@ -206,9 +208,7 @@ class SlotController extends Controller
         try
         {
             $event=Event::find($id);
-          
-// print_r($event['title']);exit;
-
+            // print_r($event['title']);exit;
             return response([
                 'data' =>  [
                     'event_id' => $event['id'],
@@ -231,8 +231,8 @@ class SlotController extends Controller
         // print_r($request);exit;
         try
         {
-            $user=Auth::user()->is_super_admin;
-                // print_r($request->event_id);exit;
+            $user=Auth::user();
+                // print_r($user->id);exit;
             if($request->event_id)
             {
             $event = Event::find($request->event_id);
@@ -243,8 +243,9 @@ class SlotController extends Controller
             $event->assigned_by =$user->id ;
             $event->status=Event::STATUS_ASSIGNED;
             $event->save();
-
             $this->my_event_controller->userEventLogs($event->id,$user->id);
+            $this->my_event_controller->eventAssignedNotification($request->event_id);
+            $this->my_event_controller->eventAssignedNotificationToAdmin($request->event_id);
 
             return response([
                 'data'=>[
